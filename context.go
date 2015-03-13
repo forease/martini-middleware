@@ -79,6 +79,12 @@ func (self *Context) HMessage(code int, message, url string) {
 	self.HTML(200, "message", msg)
 }
 
+// Parse HTML code
+func (self *Context) PHTML(code int, mod, temp string, binding interface{}, htmlOpt ...render.HTMLOptions) {
+	self.Template().Parse(temp)
+	self.HTML(200, mod, binding, htmlOpt...)
+}
+
 func InitContext() martini.Handler {
 	return func(c martini.Context, rnd render.Render, r *http.Request,
 		w http.ResponseWriter, s sessions.Session) {
