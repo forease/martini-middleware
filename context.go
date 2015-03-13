@@ -29,6 +29,11 @@ type (
 		Message string // status message
 		Url     string // redirect url
 	}
+
+	HTMLOptions struct {
+		Layout   string
+		Template string
+	}
 )
 
 func (self *Context) init() {
@@ -80,9 +85,18 @@ func (self *Context) HMessage(code int, message, url string) {
 }
 
 // Parse HTML code
-func (self *Context) PHTML(code int, mod, temp string, binding interface{}, htmlOpt ...render.HTMLOptions) {
-	self.Template().Parse(temp)
-	self.HTML(200, mod, binding, htmlOpt...)
+func (self *Context) HTML(code int, name string, binding interface{}, htmlOpt ...HTMLOptions) {
+
+	if len(htmlOpt) > 0 {
+		if len(htmlOpt[0].Template) > 0 {
+			self.Template().Parse(htmlOpt[0].Template)
+		}
+
+		opt := render.HTMLOptions{Layout: htmlOpt[0].Layout}
+		self.Render.HTML(200, name, binding, opt)
+	} else {
+		self.Render.HTML(200, name, binding)
+	}
 }
 
 func InitContext() martini.Handler {
