@@ -214,6 +214,8 @@ func setCookie(resp http.ResponseWriter, name string, value string, others ...in
 // Turns a language name (en-us) into a locale name (en_US). If 'to_lower' is
 // True, the last component is lower-cased (en_us).
 func toLocale(language string, to_lower bool) string {
+	language = strings.Replace(language, "_", "-", -1)
+
 	if p := strings.Index(language, "-"); p >= 0 {
 		if to_lower {
 			return strings.ToLower(language[:p]) + "_" + strings.ToLower(language[p+1:])
