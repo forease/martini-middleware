@@ -12,7 +12,7 @@ const (
 func AuthRequest(req interface{}, redirect string) martini.Handler {
 	return func(c *Context) {
 		if redirect == "" {
-			redirect = "/user/login"
+			redirect = "/login"
 		}
 
 		switch req {
