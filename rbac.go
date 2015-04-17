@@ -14,6 +14,24 @@ Thus, RBAC has the following model:
 	* many to many relationship between roles and permissions.
 	* roles can have parent roles.
 */
+
+//   	rbac := middleware.NewRbac()
+//   	m.Map(rbac)
+//
+//  	m.Get("/article/edit", func(c *middleware.Context, rbac *middleware.Rbac) {
+//  		ok := rbac.IsGranted("editor", "edit.article",
+//  			func(role, permission string, rbac *middleware.Rbac) bool {
+//  				return article.Owner == User.Id
+//  			})
+//  		if ok {
+//  			fmt.Println("have permission....")
+//  		} else {
+//  			fmt.Println("not have permission....")
+//  		}
+//  		c.HTML(200, "index", c.Data)
+//  	})
+//
+//
 package middleware
 
 import (
