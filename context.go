@@ -121,6 +121,20 @@ func InitContext() martini.Handler {
 	}
 }
 
+func InitContextNoSess() martini.Handler {
+	return func(c martini.Context, rnd render.Render, r *http.Request,
+		w http.ResponseWriter) {
+		ctx := &Context{
+			Render: rnd,
+			W:      w,
+			R:      r,
+			C:      c,
+		}
+
+		c.Map(ctx)
+	}
+}
+
 func InitSession(name, key string) martini.Handler {
 	var store sessions.Store
 	store = sessions.NewCookieStore([]byte(key))
