@@ -23,13 +23,6 @@ type (
 		//DbUtil   *model.DbUtil
 	}
 
-	//
-	Msg struct {
-		Code    int    // status code
-		Message string // status message
-		Url     string // redirect url
-	}
-
 	HTMLOptions struct {
 		Layout   string
 		Template string
