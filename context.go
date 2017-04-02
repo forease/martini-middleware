@@ -73,8 +73,8 @@ func (self *Context) JMessage(code int, message, url string) {
 
 // Render HTML message
 func (self *Context) HMessage(code int, message, url string) {
-	msg := Msg{Code: code, Message: message, Url: url}
-	self.HTML(200, "message", msg)
+	self.Set("msg", Msg{Code: code, Message: message, Url: url})
+	self.HTML(200, "message", self.Data)
 }
 
 // Parse HTML code
