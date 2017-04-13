@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	. "github.com/forease/ebase"
 	"github.com/forease/i18n"
 	"github.com/go-martini/martini"
 	"net/http"
@@ -79,7 +80,10 @@ func initLocale(opt I18nOptions) {
 	var once sync.Once
 	onceBody := func() {
 		if !i18n.IsExist(opt.DefaultLang) {
-			i18n.SetMessage(opt.DefaultLang, opt.Directory+"/locale_"+toLocale(opt.DefaultLang, false)+".ini")
+			err := i18n.SetMessage(opt.DefaultLang, opt.Directory+"/locale_"+toLocale(opt.DefaultLang, false)+".ini")
+			if err != nil {
+				Log.Errorf("initial for %s error %s!", opt.DefaultLang, err)
+			}
 		}
 	}
 	if !opt.Inited {
@@ -103,6 +107,8 @@ func I18n(options ...I18nOptions) martini.Handler {
 			var err error
 			if lang, err = getCookie(req, opt.CookieName); err == nil {
 				hasCookie = true
+			} else {
+				Log.Error("getCookie error", err)
 			}
 		} else {
 			isNeedRedir = true
@@ -125,6 +131,7 @@ func I18n(options ...I18nOptions) martini.Handler {
 		if language != opt.DefaultLang && !i18n.IsExist(lang) {
 			err := i18n.SetMessage(language, opt.Directory+"/locale_"+language+".ini")
 			if err != nil {
+				Log.Errorf("initial for %s error %s!", language, err)
 				language = opt.DefaultLang
 			}
 		}
