@@ -1,11 +1,14 @@
 package middleware
 
 import (
+	"fmt"
+	"net/http"
+	"sync"
+
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/binding"
 	"github.com/martini-contrib/render"
 	"github.com/martini-contrib/sessions"
-	"net/http"
 )
 
 type (
@@ -20,6 +23,7 @@ type (
 		Messages []string
 		Errors   []string
 		Data     map[string]interface{}
+		dataLock *sync.RWMutex
 		//DbUtil   *model.DbUtil
 	}
 
@@ -37,16 +41,23 @@ func (self *Context) init() {
 }
 
 func (self *Context) Get(key string) interface{} {
+	self.dataLock.RLock()
+	defer self.dataLock.RUnlock()
+
 	return self.Data[key]
 }
 
 func (self *Context) Set(key string, val interface{}) {
+	self.dataLock.Lock()
 	self.init()
 	self.Data[key] = val
+	self.dataLock.Unlock()
 }
 
 func (self *Context) Delete(key string) {
+	self.dataLock.Lock()
 	delete(self.Data, key)
+	self.dataLock.Unlock()
 }
 
 func (self *Context) Clear() {
@@ -66,14 +77,14 @@ func (self *Context) HasMessage() bool {
 }
 
 // Render JSON message
-func (self *Context) JMessage(code int, message, url string) {
-	msg := Msg{Code: code, Message: message, Url: url}
+func (self *Context) JMessage(code int, url, message string, v ...interface{}) {
+	msg := Msg{Code: code, Message: fmt.Sprintf(message, v), Url: url}
 	self.JSON(200, msg)
 }
 
 // Render HTML message
-func (self *Context) HMessage(code int, message, url string) {
-	self.Set("msg", Msg{Code: code, Message: message, Url: url})
+func (self *Context) HMessage(code int, url, message string, v ...interface{}) {
+	self.Set("msg", Msg{Code: code, Message: fmt.Sprintf(message, v), Url: url})
 	self.HTML(200, "message", self.Data)
 }
 
@@ -96,11 +107,12 @@ func InitContext() martini.Handler {
 	return func(c martini.Context, rnd render.Render, r *http.Request,
 		w http.ResponseWriter, s sessions.Session) {
 		ctx := &Context{
-			Render: rnd,
-			W:      w,
-			R:      r,
-			C:      c,
-			S:      s,
+			Render:   rnd,
+			W:        w,
+			R:        r,
+			C:        c,
+			S:        s,
+			dataLock: new(sync.RWMutex),
 			//DbUtil: &model.DbUtil{},
 		}
 
