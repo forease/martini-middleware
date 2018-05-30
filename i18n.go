@@ -1,13 +1,14 @@
 package middleware
 
 import (
-	. "github.com/forease/ebase"
-	"github.com/forease/i18n"
-	"github.com/go-martini/martini"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
+
+	. "github.com/forease/ebase"
+	"github.com/forease/i18n"
+	"github.com/go-martini/martini"
 )
 
 const (
@@ -95,7 +96,7 @@ func initLocale(opt I18nOptions) {
 // Paramenter langs must be in the form of "en-US", "zh-CN", etc.
 // Otherwise it may not recognize browser input.
 func I18n(options ...I18nOptions) martini.Handler {
-	return func(res http.ResponseWriter, req *http.Request, c *Context) {
+	return func(ctx martini.Context, res http.ResponseWriter, req *http.Request, c *Context) {
 		isNeedRedir := false
 		hasCookie := false
 		opt := prepareOptions(options)
@@ -142,6 +143,7 @@ func I18n(options ...I18nOptions) martini.Handler {
 		}
 
 		Locale = &i18n.Locale{Lang: language}
+		ctx.Map(Locale)
 		c.Set("i18n", Locale)
 		if opt.Redirect && isNeedRedir {
 			location := opt.SubURL + req.RequestURI[:strings.Index(req.RequestURI, "?")]
