@@ -78,13 +78,19 @@ func (self *Context) HasMessage() bool {
 
 // Render JSON message
 func (self *Context) JMessage(code int, url, message string, v ...interface{}) {
-	msg := Msg{Code: code, Message: fmt.Sprintf(message, v), Url: url}
+	if len(v) > 0 {
+		message = fmt.Sprintf(message, v...)
+	}
+	msg := Msg{Code: code, Message: message, Url: url}
 	self.JSON(200, msg)
 }
 
 // Render HTML message
 func (self *Context) HMessage(code int, url, message string, v ...interface{}) {
-	self.Set("msg", Msg{Code: code, Message: fmt.Sprintf(message, v), Url: url})
+	if len(v) > 0 {
+		message = fmt.Sprintf(message, v...)
+	}
+	self.Set("msg", Msg{Code: code, Message: message, Url: url})
 	self.HTML(200, "message", self.Data)
 }
 
