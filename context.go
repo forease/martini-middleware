@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 	"sync"
 
 	"github.com/go-martini/martini"
@@ -107,6 +109,40 @@ func (self *Context) HTML(code int, name string, binding interface{}, htmlOpt ..
 	} else {
 		self.Render.HTML(200, name, binding)
 	}
+}
+
+// Parse session value
+func (self *Context) GetSession(name string, value interface{}) (err error) {
+
+	//
+	tmp := self.S.Get(name)
+	if tmp == nil {
+		return errors.New("Can't found session value")
+	}
+
+	sType := getTypeOf(tmp)
+	vType := getTypeOf(value)
+	if sType != vType {
+		return fmt.Errorf("Can't match value type (%s != %s)", sType, vType)
+	}
+
+	//
+	refValue := reflect.Indirect(reflect.ValueOf(value))
+	refValue.Set(reflect.Indirect(reflect.ValueOf(tmp)))
+
+	return
+}
+
+func getTypeOf(val interface{}) (typeName string) {
+
+	tp := reflect.TypeOf(val)
+	typeName = tp.Kind().String()
+
+	if typeName == "ptr" {
+		typeName = tp.Elem().Kind().String()
+	}
+
+	return
 }
 
 func InitContext() martini.Handler {

@@ -5,11 +5,12 @@ import (
 	"net/http"
 )
 
+// setup not need check authorize URL
 //
 //  	urls := []string{"/login", "/users", "/firewall"}
 //	    m.Use(middleware.AuthRequest(urls...))
 //
-func AuthRequest(disurls ...string) martini.Handler {
+func AuthRequest(disUrls ...string) martini.Handler {
 	return func(ctx martini.Context, c *Context, r *http.Request) {
 		var (
 			match bool
@@ -23,22 +24,22 @@ func AuthRequest(disurls ...string) martini.Handler {
 			}
 		}
 
-		urlLen := len(disurls)
+		urlLen := len(disUrls)
 
 		if urlLen < 1 {
-			disurls[0] = "/login"
+			disUrls[0] = "/login"
 			urlLen = 1
 		}
 
-		for i := 0; i < urlLen; i++ {
-			if r.RequestURI == disurls[i] {
+		for _, url := range disUrls {
+			if c.R.RequestURI == url {
 				match = true
 				break
 			}
 		}
 
-		if !match && r.RequestURI != "/login" && r.RequestURI != "/users/logined" {
-			c.Redirect(disurls[0])
+		if !match && c.R.RequestURI != "/login" && c.R.RequestURI != "/users/logined" {
+			c.Redirect(disUrls[0])
 		}
 
 		ctx.Next()
