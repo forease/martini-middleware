@@ -133,6 +133,24 @@ func (self *Context) GetSession(name string, value interface{}) (err error) {
 	return
 }
 
+func (self *Context) PostForm(key string, def ...string) (value string) {
+	value = self.R.PostFormValue(key)
+	if value == "" && len(def) > 0 {
+		value = def[0]
+	}
+
+	return
+}
+
+func (self *Context) Query(key string, def ...string) (value string) {
+	value = self.R.FormValue(key)
+	if value == "" && len(def) > 0 {
+		value = def[0]
+	}
+
+	return
+}
+
 func getTypeOf(val interface{}) (typeName string) {
 
 	tp := reflect.TypeOf(val)
